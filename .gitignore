@@ -1,0 +1,8 @@
+# script with key is not to be included
+run_test.cmd
+
+# input
+target_files.txt
+
+# output
+scripts/results/*
