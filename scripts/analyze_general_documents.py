@@ -18,7 +18,7 @@ def format_content(content):
     return "\"" + content.replace("\"", "") + "\""
 
 
-def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv, f_item_csv):
+def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv, f_item_csv, f_table_csv):
     from azure.core.credentials import AzureKeyCredential
     from azure.ai.formrecognizer import DocumentAnalysisClient
 
@@ -42,6 +42,8 @@ def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv
         print("{}".format(s), file=f_entity_csv)
     def write_item_csv(s):
         print("{}".format(s), file=f_item_csv)
+    def write_table_csv(s):
+        print("{}".format(s), file=f_table_csv)
 
     # Print the document file name
     write_desc("")
@@ -165,6 +167,11 @@ def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv
 
     # Print tables
     for table_idx, table in enumerate(result.tables):
+        table_region_page_number = 0
+        table_region_bb = ""
+        cell_region_page_number = 0
+        cell_region_bb = ""
+        
         write_desc(
             "Table # {} has {} rows and {} columns".format(
                 table_idx, table.row_count, table.column_count
@@ -178,6 +185,10 @@ def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv
                     format_bounding_box(region.bounding_box),
                 )
             )
+            table_region_page_number = region.page_number
+            table_region_bb = region.bounding_box
+            # If we have more than one (table) region, this will be the last one.
+
         for cell in table.cells:
             write_desc(
                 "...Cell[{}][{}] has content '{}'".format(
@@ -193,27 +204,47 @@ def analyze_general_documents(path_to_documents, f_desc, f_kvp_csv, f_entity_csv
                         format_bounding_box(region.bounding_box),
                     )
                 )
+                cell_region_page_number = region.page_number
+                cell_region_bb = region.bounding_box
+                #  If we have more than one (cell) region, this will be the last one.
+
+            write_table_csv(",".join([path_to_documents, 
+                str(table_region_page_number), 
+                str(table_idx), 
+                str(table.row_count), 
+                str(table.column_count), 
+                format_bounding_box(table_region_bb),
+                str(cell.row_index),
+                str(cell.column_index),
+                format_content(cell.content),
+                format_bounding_box(cell_region_bb)]))
+
     write_desc("----------------------------------------")
 
 
 if __name__ == "__main__":
     import os
     script_path = os.path.dirname(__file__)
+    # target_files_path = os.path.join(script_path, "..", "target_files.txt")
+    target_files_path = os.path.join(script_path, "..", "target_files.2.txt")
+    # target_files_path = os.path.join(script_path, "..", "target_files.3.txt")
 
-    with open(os.path.join(script_path, "..", "target_files.txt"), "r", encoding='utf-8-sig') as f_target:
+    with open(target_files_path, "r", encoding='utf-8-sig') as f_target:
         str_path_to_files = f_target.read().splitlines()
 
     # Note on encoding: utf-8-sig allow Excel to read the file correctly. Notepad may not.
     with open(os.path.join(script_path, "results", "result.txt"), "a", encoding='utf-8-sig') as f_desc, \
         open(os.path.join(script_path, "results", "result_kvp.csv"), "a", encoding='utf-8-sig') as f_kvp_csv, \
         open(os.path.join(script_path, "results", "result_entity.csv"), "a", encoding='utf-8-sig') as f_entity_csv, \
-        open(os.path.join(script_path, "results", "result_item.csv"), "a", encoding='utf-8-sig') as f_item_csv:
+        open(os.path.join(script_path, "results", "result_item.csv"), "a", encoding='utf-8-sig') as f_item_csv, \
+        open(os.path.join(script_path, "results", "result_table.csv"), "a", encoding='utf-8-sig') as f_table_csv:
 
         # Write headers
         print(",".join(["document_name", "key", "value", "confidence", "key_bb", "value_bb", "human_eval"]), file=f_kvp_csv)
         print(",".join(["document_name", "category", "sub-category", "content", "confidence", "bb", "human_eval"]), file=f_entity_csv)
         print(",".join(["document_name", "page_number", "page_width", "page_height", "page_unit", "item_type", "item_content", "confidence", "line_idx", "bb", "human_eval"]), file=f_item_csv)
+        print(",".join(["document_name", "page_number", "table_idx", "table_row_count", "table_column_count", "table_bb", "row_idx", "column_idx", "cell_content", "cell_bb", "human_eval"]), file=f_table_csv)
 
         for path_to_file in str_path_to_files:
             print("Processing: {}".format(path_to_file))
-            analyze_general_documents(os.path.normpath(path_to_file), f_desc, f_kvp_csv, f_entity_csv, f_item_csv)
+            analyze_general_documents(os.path.normpath(path_to_file), f_desc, f_kvp_csv, f_entity_csv, f_item_csv, f_table_csv)

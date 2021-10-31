@@ -3,6 +3,7 @@ run_test.cmd
 
 # input
 target_files.txt
+target_files.*.txt
 
 # output
 scripts/results/*

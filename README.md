@@ -13,7 +13,7 @@ pip install azure-ai-formrecognizer --pre
 Specify the local files to process.
 
 - Copy `target_files.txt.dist` to `target_files.txt`.
-- Replace the file path in the file.
+- Replace the file path in the file. It can be outside of the project folder. `dir /s /b /a:-D` (list all files under current directory) can be useful to create one.
 
 Set the environment variables with your own values before running the sample:
 
