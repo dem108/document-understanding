@@ -6,6 +6,7 @@
 conda create -n cognitive-services python=3.7
 conda activate cognitive-services
 pip install azure-ai-formrecognizer --pre
+pip install pandas
 ```
 
 ## How to run
