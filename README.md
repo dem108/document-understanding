@@ -7,6 +7,7 @@ conda create -n cognitive-services python=3.7
 conda activate cognitive-services
 pip install azure-ai-formrecognizer --pre
 pip install pandas pdf2image
+pip install azure-ai-textanalytics==5.2.0b1
 ```
 
 ## How to run
@@ -14,7 +15,7 @@ pip install pandas pdf2image
 Specify the local files to process.
 
 - Copy `target_files.txt.dist` to `target_files.txt`.
-- Replace the file path in the file. It can be outside of the project folder. `dir /s /b /a:-D` (list all files under current directory) can be useful to create one.
+- Replace the file path in the file. It can be outside of the project folder. `dir /s /b /a:-D > temp.txt` (list all files under current directory) can be useful to create one.
 
 Set the environment variables with your own values before running the sample:
 
