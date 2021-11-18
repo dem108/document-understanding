@@ -11,7 +11,8 @@ def convert_pdf_to_images(pdf_file, prefix, image_dir):
         os.makedirs(image_dir)
 
     # convert pdf to images
-    images = convert_from_path(pdf_file, dpi=300)
+    images = convert_from_path(pdf_file, dpi=200)
+    # images = convert_from_path(pdf_file, dpi=300)
 
     # save images to image directory
     for i, image in enumerate(images):
