@@ -1,4 +1,5 @@
-conda activate cognitive-services
+REM Make sure you are in the right conda environment
+REM conda activate cognitive-services
 
 SET AZURE_FORM_RECOGNIZER_ENDPOINT={add your endpoint, like https://xxx.cognitiveservices.azure.com/}
 SET AZURE_FORM_RECOGNIZER_KEY={add your key}
